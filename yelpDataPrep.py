@@ -1,187 +1,105 @@
 import io
-import pandas as pd
 import json
-from pandas.io.json import json_normalize
-from flatten_json import flatten
-
-#import h2o
-import pan
-#h2o.init()
-yelpList=[]
-
-with open("yelp_academic_dataset_business.json") as df:
-    for dic in df:
-        yelpList.append((json.loads(dic)))
-print(len(yelpList))
-print(yelpList[0].keys()  )
 
 
-def customFlatten(row):
-    for value in row.values()
+#####################
+# HELPER FUNCTIONS
+#####################
 
-        if isinstance(value, dict)
-            customFlatten()(value)
-
-        return value
-
-
-
-
-firstRow = flatten(yelpList[0])
-
-print(firstRow)
-features=[]
-for dic in yelpList:
-    if dic.get("review_count") > 650 and dic.get("stars") >= 4:
-        rowString = ''
-
-        for value in dic.values():
-            rowString += str(value) + ','
-
-        features.append(rowString);
+# Read Json Function: Return list as an array
+def readJsonFile(fileName, limit = None):
+    data = []
+    i = 0
+    with open(fileName) as f:
+        for row in f:
+            if ( limit != None and  i >= limit ):
+                break
+            data.append(json.loads(row))
+            i += 1
+    return data
 
 
-print(features)
+def flattenRow(row):
+    flattenRow = {}
 
-print(len(features))
+    def flatten(x, name=''):
+        if type(x) is dict:
+            for a in x:
+                flatten(x[a], name + a + '_')
+        # Take care of different type here:
+        # elif type(x) is list:
+        #     i = 0
+        #     for a in x:
+        #         flatten(a, name + str(i) + '_')
+        #         i += 1
+        else:
+            flattenRow[name[:-1]] = x
 
-
-#
-# features = []
-# for dic in yelpList:
-#     if dic.get("review_count") > 650 and dic.get("stars") >= 4:
-#         varReviewCount =import io
-# import json
-# from pandas.io.json import json_normalize
-# from flatten_json import flatten
-#
-# #import h2o
-# import pandas as pd
-# #h2o.init()
-# yelpList=[]
-#
-# with open("yelp_academic_dataset_business.json") as df:
-#     for dic in df:
-#         yelpList.append((json.loads(dic)))
-# print(len(yelpList))
-# print(yelpList[0].keys()  )
-#
-#
-# def customFlatten(row):
-#     for value in row.values()
-#
-#         if isinstance(value, dict)
-#             customFlatten()(value)
-#
-#         return value
-#
-#
-#
-#
-# firstRow = flatten(yelpList[0])
-#
-# print(firstRow)
-# features=[]
-# for dic in yelpList:
-#     if dic.get("review_count") > 650 and dic.get("stars") >= 4:
-#         rowString = ''
-#
-#         for value in dic.values():
-#             rowString += str(value) + ','
-#
-#         features.append(rowString);
-#
-#
-# print(features)
-#
-# print(len(features))
-#
-#
-# #
-# # features = []
-# # for dic in yelpList:
-# #     if dic.get("review_count") > 650 and dic.get("stars") >= 4:
-# #         varReviewCount = dic.get("review_count")
-# #         name = dic.get("name")
-# #         #id = dic.get("business_id")
-# #         state = dic.get("state")
-# #         zipCode = dic.get("postal_code")
-# #         category = dic.get("categories")
-# #         noiseLevel = dic.get("NoiseLevel")
-# #         attire = dic.get("RestaurantsAttire")
-# #         rating = dic.get("stars")
-# #         features.append(str(id)+","
-# #                         +str(name)+","
-# #                         +str(rating)+","
-# #                         +str(varReviewCount)+","
-# #                         +str(state)+","
-# #                         +str(category)+","
-# #                         +str(attire)+","
-# #                         +str(noiseLevel)+","
-# #                         +str(zipCode))
-#
-# #print(yelpList[0])
-#
-#
-# #print(goodStore)
-#
-#
-#
-# #transform the string to dictionary format
-# #df3 = json.loads(df1)
-# #print(df3)
-# #turn the dictionary into list type
-#
-#
-#
-#
-#
-# #for line in df:
-#         #print(line)
-#
-#
-#
-#
-# #from pandas.io.json import json_normalize dic.get("review_count")
-#         name = dic.get("name")
-#         #id = dic.get("business_id")
-#         state = dic.get("state")
-#         zipCode = dic.get("postal_code")
-#         category = dic.get("categories")
-#         noiseLevel = dic.get("NoiseLevel")
-#         attire = dic.get("RestaurantsAttire")
-#         rating = dic.get("stars")
-#         features.append(str(id)+","
-#                         +str(name)+","
-#                         +str(rating)+","
-#                         +str(varReviewCount)+","
-#                         +str(state)+","
-#                         +str(category)+","
-#                         +str(attire)+","
-#                         +str(noiseLevel)+","
-#                         +str(zipCode))
-
-#print(yelpList[0])
-
-
-#print(goodStore)
+    flatten(row)
+    return flattenRow
 
 
 
-#transform the string to dictionary format
-#df3 = json.loads(df1)
-#print(df3)
-#turn the dictionary into list type
+######################
+# SCRIPT STARTS HERE
+######################
+
+data = readJsonFile("./data/yelp_academic_dataset_business.json", 100)
+
+
+####################################
+# DATA TRANSFORMATION LOOP STARTS HERE
+####################################
+
+newData = []
+# Loop through the list
+for row in data:
+
+    convertedRow = {}
+    # Loop through column
+    for key in row.keys():
+
+        # value
+        value = row.get(key)
+
+        # Column Name: key
+        # Value: value
+
+        # Assign key to value
+        convertedRow[key] = value
+
+        ############
+        # DATA TRANSFORMATION EXAMPLE
+        ############
+        #
+        # if key === "stars":
+        #   if value > 3
+        #       convertedRow[isGoodEnough] = True
+        #   else:
+        #       convertedRow[isGoodEnough] = False
+        #
+
+    newData.append(convertedRow)
+
+# PRINT CONVERTED DATA
+#print(newData)
+
+
+
+########################################
+# EXPORT NEW DATA INTO OTHER FORM HERE
+#######################################
+# csvList = []
+# for row in newData:
+#    csvForm = ''
+#    for key in row.keys():
+#       value = row.get(key)
+#       csvForm += value ','
+#
+#   csvList.append(csvForm)
 
 
 
 
 
-#for line in df:
-        #print(line)
-
-
-
-
-#from pandas.io.json import json_normalize
 
