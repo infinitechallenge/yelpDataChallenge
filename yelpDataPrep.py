@@ -19,13 +19,18 @@ def readJsonFile(fileName, limit = None):
     return data
 
 
+# Recursive function
 def flattenRow(row):
-    flattenRow = {}
+    tranformedRow = {}
 
-    def flatten(x, name=''):
+    def flatten(x, name=''): #flatten("False","attributes_BikeParking_" )
         if type(x) is dict:
-            for a in x:
-                flatten(x[a], name + a + '_')
+            for key in x:
+                flatten(x[key], name + key + '_')
+                #flatten("False","attributes_BikeParking_")
+                #flatten(x[attributes])
+                #x[attributes] -> {}> 
+                #({a:b,c:d,...,z:x}, '' + "attributes" + "_")
         # Take care of different type here:
         # elif type(x) is list:
         #     i = 0
@@ -33,10 +38,13 @@ def flattenRow(row):
         #         flatten(a, name + str(i) + '_')
         #         i += 1
         else:
-            flattenRow[name[:-1]] = x
+            tranformedRow[name[:-1]] = x 
+            # tranformedRow["business_id"] = "Apn5Q_b6Nz61Tq4XzPdf9A"
+            # transformedRow[attributes_BikeParking] = "False"
+            # "attributes_BikeParking":"False"
 
     flatten(row)
-    return flattenRow
+    return tranformedRow
 
 
 
@@ -56,9 +64,11 @@ newData = []
 for row in data:
 
     convertedRow = {}
-    # Loop through column
-    for key in row.keys():
 
+    flattenedRow = flattenRow(row)
+
+    # Loop through column
+    for key in flattenedRow.keys():
         # value
         value = row.get(key)
 
@@ -66,7 +76,7 @@ for row in data:
         # Value: value
 
         # Assign key to value
-        convertedRow[key] = value
+        convertedRow[key] = value 
 
         ############
         # DATA TRANSFORMATION EXAMPLE
